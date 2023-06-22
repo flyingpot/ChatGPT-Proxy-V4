@@ -83,6 +83,7 @@ func main() {
 		PORT = "9090"
 	}
 	handler := gin.Default()
+	handler.Use(Cors())
 	handler.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})
 	})
@@ -142,7 +143,9 @@ func proxy(c *gin.Context) {
 	var request *http.Request
 	var response *http.Response
 
-	if c.Request.URL.RawQuery != "" {
+	if c.Param("path") == "/conversation_limit" {
+		url = "https://" + OpenAI_HOST + "/public-api" + c.Param("path") + "?" + c.Request.URL.RawQuery
+	} else if c.Request.URL.RawQuery != "" {
 		url = "https://" + OpenAI_HOST + "/backend-api" + c.Param("path") + "?" + c.Request.URL.RawQuery
 	} else {
 		url = "https://" + OpenAI_HOST + "/backend-api" + c.Param("path")
@@ -159,7 +162,7 @@ func proxy(c *gin.Context) {
 	request.Header.Set("Connection", "keep-alive")
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Keep-Alive", "timeout=360")
-	request.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+	request.Header.Set("Authorization", c.Request.Header.Get("X-Authorization"))
 	request.Header.Set("sec-ch-ua", "\"Chromium\";v=\"112\", \"Brave\";v=\"112\", \"Not:A-Brand\";v=\"99\"")
 	request.Header.Set("sec-ch-ua-mobile", "?0")
 	request.Header.Set("sec-ch-ua-platform", "\"Linux\"")
@@ -210,5 +213,21 @@ func proxy(c *gin.Context) {
 			log.Printf("Error reading from response body: %v", err)
 			break
 		}
+	}
+}
+func Cors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		method := c.Request.Method
+ 
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Headers", "Accept,Origin,Content-Length,Content-Type,Authorization,X-Authorization,X-Requested-With,Access-Control-Request-Method,Access-Control-Request-Headers,Content-Disposition")
+		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS")
+		c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type")
+		c.Header("Access-Control-Allow-Credentials", "true")
+ 
+		if method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+		}
+		c.Next()
 	}
 }
