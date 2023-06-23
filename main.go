@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/flyingpot/ChatGPT-Proxy-V4/handler"
+	"github.com/flyingpot/ChatGPT-Proxy-V4/api"
 )
 
 func main() {
-	handler.Run()
+	api.Run()
 }

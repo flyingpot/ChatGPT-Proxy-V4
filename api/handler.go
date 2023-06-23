@@ -1,4 +1,4 @@
-package handler
+package api
 
 import (
 	"bytes"
@@ -322,10 +322,6 @@ func proxy(c *gin.Context) {
 			if writeErr != nil {
 				log.Printf("Error writing to client: %v", writeErr)
 				break
-			}
-
-			if _, ok := c.Writer.(interface{ Flush() }); ok {
-				c.Writer.Flush()
 			}
 		}
 		if err == io.EOF {

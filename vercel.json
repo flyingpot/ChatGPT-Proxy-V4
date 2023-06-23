@@ -1,11 +1,8 @@
 {
-  "name": "chatgpt-proxy-v4",
-  "version": 2,
-  "framework": null,
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "handler/handler.go"
+      "destination": "api/handler.go"
     }
   ]
 }
