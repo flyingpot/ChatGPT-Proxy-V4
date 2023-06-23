@@ -324,6 +324,9 @@ func proxy(c *gin.Context) {
 				break
 			}
 		}
+
+		c.Writer.Flush()
+
 		if err == io.EOF {
 			break
 		}
